@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Invito per un Weekend</title>
+  <style>
+    :root {
+      --bg: #0d0b09;
+      --card: #17130f;
+      --stroke: #2b241e;
+      --text: #f3ede6;
+      --muted: #c9beb2;
+      --accent: #c8b08e;
+      --accent-ink: #1a1410;
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Optima", "Candara", "Trebuchet MS", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(120% 120% at 20% 10%, rgba(255,255,255,0.05), transparent 60%),
+        radial-gradient(120% 120% at 80% 0%, rgba(255,255,255,0.03), transparent 55%),
+        var(--bg);
+      color: var(--text);
+      letter-spacing: 0.01em;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(90deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 8px),
+        radial-gradient(rgba(255,255,255,0.04) 0.5px, transparent 0.5px);
+      background-size: 8px 8px, 3px 3px;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 0 20px 56px; }
+    .panel {
+      position: relative;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent 55%), var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+    }
+    .panel + .panel { margin-top: 18px; }
+    .eyebrow {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: #b7aca0;
+    }
+    h1, h2 {
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Times New Roman", serif;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      margin: 12px 0 10px;
+    }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-top: 6px; }
+    p { margin: 10px 0; color: var(--muted); line-height: 1.6; }
+    .lead { font-size: 15px; color: #e2d7cc; }
+    .small { font-size: 12px; color: #a89f94; margin-top: 12px; }
+    .grid { display: grid; gap: 16px; margin-top: 18px; }
+    .row { display: grid; gap: 16px; }
+    label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #b9b1a7;
+      margin-bottom: 8px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--stroke);
+      background: #120e0b;
+      color: var(--text);
+      font: inherit;
+      outline: none;
+      transition: border-color 200ms ease, box-shadow 200ms ease;
+    }
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='none' stroke='%23c9beb2' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 40px;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    input:focus, select:focus, textarea:focus {
+      border-color: #3a3128;
+      box-shadow: 0 0 0 3px rgba(199,176,140,0.15);
+    }
+    ::placeholder { color: #8f867d; }
+    .btns { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+    button {
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      background: var(--accent);
+      color: var(--accent-ink);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      transition: transform 160ms ease, box-shadow 160ms ease;
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,0,0,0.25); }
+    button:focus-visible { outline: 2px solid #3a3128; outline-offset: 2px; }
+    button.secondary {
+      background: transparent;
+      color: var(--text);
+      border-color: var(--stroke);
+      box-shadow: none;
+    }
+    .status { margin-top: 14px; min-height: 18px; }
+    .ok { color: var(--accent); }
+    .hero-slider {
+      position: relative;
+      height: 82vh;
+      min-height: 420px;
+      max-height: 720px;
+      margin: 0 -20px 18px;
+      border-radius: 0 0 24px 24px;
+      overflow: hidden;
+      background: #0b0907;
+    }
+    .hero-slider::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(10,8,7,0.05) 0%, rgba(10,8,7,0.25) 60%, rgba(10,8,7,0.8) 100%);
+      z-index: 1;
+    }
+    .slide {
+      position: absolute;
+      inset: 0;
+      background-image: var(--img);
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 1200ms ease;
+    }
+    .slide.active { opacity: 1; }
+    .slider-caption {
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      bottom: 22px;
+      z-index: 2;
+      max-width: 420px;
+    }
+    .slider-caption h2 { margin: 8px 0 0; }
+    .slider-caption p { margin: 8px 0 0; color: #d9cfc3; }
+    @media (min-width: 560px) {
+      .row { grid-template-columns: 1fr 1fr; }
+      h1 { font-size: 32px; }
+      .hero-slider {
+        margin: 0 0 22px;
+        border-radius: 24px;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .slide { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero-slider" aria-label="Galleria di ricordi">
+      <!-- Sostituisci foto-1.jpg, foto-2.jpg, foto-3.jpg con le vostre immagini. -->
+      <div class="slide active" style="--img: url('img/foto-1.png');" role="img" aria-label="Foto nostra 1"></div>
+      <div class="slide" style="--img: url('img/foto-2.png');" role="img" aria-label="Foto nostra 2"></div>
+      <div class="slide" style="--img: url('img/foto-3.jpeg');" role="img" aria-label="Foto nostra 3"></div>
+      <div class="slider-caption">
+        <div class="eyebrow">I nostri momenti</div>
+        <h2>Una foto alla volta, poi si parte.</h2>
+        <p>Scorrono lente, giusto per scaldarci.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="eyebrow">Solo per noi</div>
+      <h1>Weekend fuori porta, senza fretta.</h1>
+      <p class="lead">
+        Io mi prendo la parte noiosa: cercare, prenotare, organizzare.
+        Tu dimmi cosa ti va davvero.
+      </p>
+      <p class="small">Codice privato: <b id="code"></b></p>
+    </div>
+
+    <div class="panel">
+      <h2>Preferenze, a modo tuo.</h2>
+      <p class="small">Due minuti e ho tutto quello che mi serve.</p>
+
+      <div class="grid">
+        <div class="row">
+          <div>
+            <label>Periodo</label>
+            <select id="periodo">
+              <option value="Gennaio-Febbraio">Gennaio–Febbraio</option>
+              <option value="Marzo-Aprile">Marzo–Aprile</option>
+              <option value="Maggio-Giugno">Maggio–Giugno</option>
+              <option value="Quando saremo pronti">Quando saremo pronti</option>
+            </select>
+          </div>
+          <div>
+            <label>Notti</label>
+            <select id="notti">
+              <option value="1 notte">1 notte</option>
+              <option value="2 notti" selected>2 notti</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label>Atmosfera</label>
+          <select id="stile">
+            <option value="Relax / Spa">Relax / Spa</option>
+            <option value="Montagna & natura">Montagna & natura</option>
+            <option value="Città & cibo">Città & cibo</option>
+            <option value="Mare (anche fuori stagione)">Mare (anche fuori stagione)</option>
+            <option value="A sorpresa (mi fido)">A sorpresa (mi fido)</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>Distanza</label>
+            <select id="distanza">
+              <option value="Max 1 ora">Max 1 ora</option>
+              <option value="Max 2 ore" selected>Max 2 ore</option>
+              <option value="Anche 3-4 ore">Anche 3–4 ore</option>
+              <option value="Basta che sia bello">Basta che sia bello</option>
+            </select>
+          </div>
+          <div>
+            <label>Budget indicativo</label>
+            <select id="budget">
+              <option value="250–350€">250–350€</option>
+              <option value="350–500€" selected>350–500€</option>
+              <option value="500–700€">500–700€</option>
+              <option value="Preferisco non saperlo">Preferisco non saperlo</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label>Note essenziali</label>
+          <textarea id="note" placeholder="Es: niente sveglia presto, colazione lunga, posto tranquillo."></textarea>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button id="save">Salva preferenze</button>
+        <button class="secondary" id="wa">Invia a Riccardo</button>
+        <button class="secondary" id="reset">Ricomincia</button>
+      </div>
+
+      <div id="status" class="small status"></div>
+      <div class="small">Questo invito non scade. Aspetta solo noi.</div>
+    </div>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  const fields = ["periodo","notti","stile","distanza","budget","note"];
+  const key = "voucher_weekend_pref_v1";
+
+  // generate friendly code
+  const code = "WFPN-" + new Date().getFullYear() + "-" + String(Math.floor(Math.random()*900)+100);
+  $("code").textContent = code;
+
+  function getData() {
+    const data = { code };
+    fields.forEach(f => data[f] = $(f).value);
+    return data;
+  }
+
+  function setStatus(msg, ok=false){
+    $("status").innerHTML = ok ? `<span class="ok">${msg}</span>` : msg;
+  }
+
+  function saveLocal(){
+    const data = getData();
+    localStorage.setItem(key, JSON.stringify(data));
+    setStatus("Preferenze salvate.", true);
+  }
+
+  function loadLocal(){
+    const raw = localStorage.getItem(key);
+    if(!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      fields.forEach(f => { if(data[f] != null) $(f).value = data[f]; });
+      setStatus("Preferenze caricate.", true);
+    } catch(e){}
+  }
+
+  function resetAll(){
+    localStorage.removeItem(key);
+    $("note").value = "";
+    setStatus("Preferenze cancellate. Puoi ricominciare.", true);
+  }
+
+  function sendWhatsApp(){
+    const d = getData();
+    const text =
+`Invito per un weekend
+Codice: ${d.code}
+
+Periodo: ${d.periodo}
+Notti: ${d.notti}
+Atmosfera: ${d.stile}
+Distanza: ${d.distanza}
+Budget: ${d.budget}
+
+Note: ${d.note || "Nessuna indicazione aggiuntiva."}`;
+    const url = "https://wa.me/?text=" + encodeURIComponent(text);
+    window.open(url, "_blank");
+  }
+
+  const slides = Array.from(document.querySelectorAll(".slide"));
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (slides.length > 1 && !prefersReducedMotion) {
+    let index = 0;
+    setInterval(() => {
+      slides[index].classList.remove("active");
+      index = (index + 1) % slides.length;
+      slides[index].classList.add("active");
+    }, 5200);
+  }
+
+  $("save").addEventListener("click", saveLocal);
+  $("wa").addEventListener("click", sendWhatsApp);
+  $("reset").addEventListener("click", resetAll);
+
+  loadLocal();
+</script>
+</body>
+</html>
