@@ -118,6 +118,38 @@
       border-color: var(--stroke);
       box-shadow: none;
     }
+    .locked { overflow: hidden; }
+    .gate {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(8, 7, 6, 0.8);
+      backdrop-filter: blur(6px);
+      z-index: 10;
+      transition: opacity 300ms ease;
+    }
+    .gate.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .gate-card {
+      width: min(360px, 90vw);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent 60%), var(--card);
+      border: 1px solid var(--stroke);
+      border-radius: 16px;
+      padding: 22px 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+    }
+    .gate-form {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .gate-form button { width: 100%; }
+    .gate-msg { min-height: 16px; }
+    .gate-msg.error { color: #d7a7a0; }
     .status { margin-top: 14px; min-height: 18px; }
     .ok { color: var(--accent); }
     .hero-slider {
@@ -129,7 +161,9 @@
       border-radius: 0 0 24px 24px;
       overflow: hidden;
       background: #0b0907;
+      cursor: grab;
     }
+    .hero-slider.dragging { cursor: grabbing; }
     .hero-slider::after {
       content: "";
       position: absolute;
@@ -157,6 +191,25 @@
     }
     .slider-caption h2 { margin: 8px 0 0; }
     .slider-caption p { margin: 8px 0 0; color: #d9cfc3; }
+    .slider-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 2;
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(9,7,6,0.55);
+      color: #f3ede6;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+    .slider-btn:hover { background: rgba(9,7,6,0.75); }
+    .slider-btn.prev { left: 14px; }
+    .slider-btn.next { right: 14px; }
     @media (min-width: 560px) {
       .row { grid-template-columns: 1fr 1fr; }
       h1 { font-size: 32px; }
@@ -170,105 +223,126 @@
     }
   </style>
 </head>
-<body>
+<body class="locked">
+  <div id="gate" class="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+    <div class="gate-card">
+      <div class="eyebrow">Accesso riservato</div>
+      <h2 id="gate-title">Inserisci la password</h2>
+      <p class="small">Serve solo per validare il voucher.</p>
+      <form id="gate-form" class="gate-form">
+        <label for="gate-pass">Password</label>
+        <input id="gate-pass" type="password" autocomplete="current-password" placeholder="********" required />
+        <button type="submit">Entra</button>
+        <div id="gate-msg" class="small gate-msg" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
   <div class="wrap">
     <div class="hero-slider" aria-label="Galleria di ricordi">
       <!-- Sostituisci foto-1.jpg, foto-2.jpg, foto-3.jpg con le vostre immagini. -->
       <div class="slide active" style="--img: url('img/foto-1.png');" role="img" aria-label="Foto nostra 1"></div>
       <div class="slide" style="--img: url('img/foto-2.png');" role="img" aria-label="Foto nostra 2"></div>
       <div class="slide" style="--img: url('img/foto-3.jpeg');" role="img" aria-label="Foto nostra 3"></div>
+      <div class="slide" style="--img: url('img/foto-4.jpeg');" role="img" aria-label="Foto nostra 4"></div>
+      <div class="slide" style="--img: url('img/foto-5.jpeg');" role="img" aria-label="Foto nostra 5"></div>
+      <button class="slider-btn prev" type="button" aria-label="Immagine precedente">&lt;</button>
+      <button class="slider-btn next" type="button" aria-label="Immagine successiva">&gt;</button>
       <div class="slider-caption">
-        <div class="eyebrow">I nostri momenti</div>
-        <h2>Una foto alla volta, poi si parte.</h2>
-        <p>Scorrono lente, giusto per scaldarci.</p>
+        <div class="eyebrow">Per te</div>
+        <h2>Un regalo pensato per farti stare bene.</h2>
+        <p>Dopo 9 mesi vivremo insieme la nostra famiglia 🤍</p>
       </div>
     </div>
 
     <div class="panel">
-      <div class="eyebrow">Solo per noi</div>
-      <h1>Weekend fuori porta, senza fretta.</h1>
+      <div class="eyebrow">Per te, e per noi</div>
+      <h1>Un weekend fuori porta, quando ti andrà.</h1>
       <p class="lead">
-        Io mi prendo la parte noiosa: cercare, prenotare, organizzare.
-        Tu dimmi cosa ti va davvero.
+        Questo è un regalo per staccare, respirare, sentirti leggera. Io mi occupo di tutto: cercare, prenotare, organizzare. Tu dimmi solo cosa ti farebbe stare bene ✨
       </p>
+      <p class="small">Sarà un uscita fuori porta tra noi + Clara 💛 Senza fretta. Senza dover decidere tutto subito.</p>
       <p class="small">Codice privato: <b id="code"></b></p>
     </div>
 
     <div class="panel">
-      <h2>Preferenze, a modo tuo.</h2>
-      <p class="small">Due minuti e ho tutto quello che mi serve.</p>
+      <h2>Dimmi cosa ti va davvero.</h2>
+      <p class="small">Rispondi come ti viene. Non ci sono risposte giuste 😊</p>
 
       <div class="grid">
         <div class="row">
           <div>
-            <label>Periodo</label>
+            <label>Quando ti piacerebbe partire?</label>
             <select id="periodo">
-              <option value="Gennaio-Febbraio">Gennaio–Febbraio</option>
-              <option value="Marzo-Aprile">Marzo–Aprile</option>
-              <option value="Maggio-Giugno">Maggio–Giugno</option>
-              <option value="Quando saremo pronti">Quando saremo pronti</option>
+              <option value="Appena ci sentiamo pronti">Appena ci sentiamo pronti</option>
+              <option value="Tra qualche mese">Tra qualche mese</option>
+              <option value="Quando Clara sarà un po’ più grande">Quando Clara sarà un po’ più grande</option>
+              <option value="Decidilo tu per me 😌">Decidilo tu per me 😌</option>
             </select>
           </div>
           <div>
-            <label>Notti</label>
+            <label>Quanto tempo vorresti?</label>
             <select id="notti">
-              <option value="1 notte">1 notte</option>
-              <option value="2 notti" selected>2 notti</option>
+              <option value="Solo una notte">Solo una notte</option>
+              <option value="Due notti (default)" selected>Due notti (default)</option>
+              <option value="Più tempo possibile 😄">Più tempo possibile 😄</option>
             </select>
           </div>
         </div>
 
         <div>
-          <label>Atmosfera</label>
+          <label>Che atmosfera sogni?</label>
           <select id="stile">
-            <option value="Relax / Spa">Relax / Spa</option>
-            <option value="Montagna & natura">Montagna & natura</option>
-            <option value="Città & cibo">Città & cibo</option>
-            <option value="Mare (anche fuori stagione)">Mare (anche fuori stagione)</option>
-            <option value="A sorpresa (mi fido)">A sorpresa (mi fido)</option>
+            <option value="Relax totale (spa, silenzio, lentezza)">Relax totale (spa, silenzio, lentezza)</option>
+            <option value="Natura e aria buona">Natura e aria buona</option>
+            <option value="Passeggiare, mangiare bene, scoprire">Passeggiare, mangiare bene, scoprire</option>
+            <option value="Non voglio pensarci, sorprendimi 💫">Non voglio pensarci, sorprendimi 💫</option>
           </select>
         </div>
 
         <div class="row">
           <div>
-            <label>Distanza</label>
+            <label>Quanto lontano ti va di andare?</label>
             <select id="distanza">
-              <option value="Max 1 ora">Max 1 ora</option>
-              <option value="Max 2 ore" selected>Max 2 ore</option>
-              <option value="Anche 3-4 ore">Anche 3–4 ore</option>
-              <option value="Basta che sia bello">Basta che sia bello</option>
+              <option value="Vicino, basta cambiare aria">Vicino, basta cambiare aria</option>
+              <option value="Un po’ più lontano">Un po’ più lontano</option>
+              <option value="Dove serve per stare bene">Dove serve per stare bene</option>
             </select>
           </div>
           <div>
-            <label>Budget indicativo</label>
+            <label>Sul budget fidati di me 😉</label>
             <select id="budget">
-              <option value="250–350€">250–350€</option>
-              <option value="350–500€" selected>350–500€</option>
-              <option value="500–700€">500–700€</option>
-              <option value="Preferisco non saperlo">Preferisco non saperlo</option>
+              <option value="Fidati tu">Fidati tu</option>
+              <option value="Indicativamente medio">Indicativamente medio</option>
+              <option value="Non voglio saperlo 🙈">Non voglio saperlo 🙈</option>
             </select>
           </div>
         </div>
 
         <div>
-          <label>Note essenziali</label>
-          <textarea id="note" placeholder="Es: niente sveglia presto, colazione lunga, posto tranquillo."></textarea>
+          <label>C’è qualcosa che desideri davvero?</label>
+          <textarea id="note" placeholder="Riposo, dormire tanto, non correre, mangiare bene, silenzio… o qualsiasi cosa ti venga in mente 💭"></textarea>
         </div>
       </div>
 
       <div class="btns">
-        <button id="save">Salva preferenze</button>
-        <button class="secondary" id="wa">Invia a Riccardo</button>
-        <button class="secondary" id="reset">Ricomincia</button>
+        <button id="save">Salva 💛</button>
+        <button class="secondary" id="wa">Mandami tutto</button>
+        <button class="secondary" id="reset">Rifacciamo con calma</button>
       </div>
 
       <div id="status" class="small status"></div>
-      <div class="small">Questo invito non scade. Aspetta solo noi.</div>
+      <div class="small">Questo regalo non scade. Aspetta solo il momento giusto per te 🌿</div>
     </div>
   </div>
 
 <script>
   const $ = (id) => document.getElementById(id);
+
+  const gate = $("gate");
+  const gateForm = $("gate-form");
+  const gatePass = $("gate-pass");
+  const gateMsg = $("gate-msg");
+  const gateKey = "love25";
 
   const fields = ["periodo","notti","stile","distanza","budget","note"];
   const key = "voucher_weekend_pref_v1";
@@ -327,21 +401,101 @@ Note: ${d.note || "Nessuna indicazione aggiuntiva."}`;
   }
 
   const slides = Array.from(document.querySelectorAll(".slide"));
+  const heroSlider = document.querySelector(".hero-slider");
+  const prevBtn = document.querySelector(".slider-btn.prev");
+  const nextBtn = document.querySelector(".slider-btn.next");
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (slides.length > 1 && !prefersReducedMotion) {
-    let index = 0;
-    setInterval(() => {
-      slides[index].classList.remove("active");
-      index = (index + 1) % slides.length;
-      slides[index].classList.add("active");
-    }, 5200);
+  let index = slides.findIndex((slide) => slide.classList.contains("active"));
+  if (index < 0) index = 0;
+  let autoTimer = null;
+
+  function showSlide(nextIndex) {
+    if (!slides.length) return;
+    slides[index].classList.remove("active");
+    index = (nextIndex + slides.length) % slides.length;
+    slides[index].classList.add("active");
   }
+
+  function nextSlide() { showSlide(index + 1); }
+  function prevSlide() { showSlide(index - 1); }
+
+  function startAuto() {
+    if (slides.length > 1 && !prefersReducedMotion) {
+      autoTimer = setInterval(nextSlide, 5200);
+    }
+  }
+
+  function resetAuto() {
+    if (!autoTimer) return;
+    clearInterval(autoTimer);
+    startAuto();
+  }
+
+  if (prevBtn && nextBtn) {
+    prevBtn.addEventListener("click", () => {
+      prevSlide();
+      resetAuto();
+    });
+    nextBtn.addEventListener("click", () => {
+      nextSlide();
+      resetAuto();
+    });
+  }
+
+  if (heroSlider && slides.length > 1) {
+    let dragStartX = null;
+    heroSlider.addEventListener("pointerdown", (event) => {
+      if (event.target.closest(".slider-btn")) return;
+      dragStartX = event.clientX;
+      heroSlider.setPointerCapture(event.pointerId);
+      heroSlider.classList.add("dragging");
+    });
+    heroSlider.addEventListener("pointerup", (event) => {
+      if (dragStartX === null) return;
+      const delta = event.clientX - dragStartX;
+      dragStartX = null;
+      heroSlider.classList.remove("dragging");
+      if (Math.abs(delta) > 40) {
+        delta < 0 ? nextSlide() : prevSlide();
+        resetAuto();
+      }
+    });
+    heroSlider.addEventListener("pointercancel", () => {
+      dragStartX = null;
+      heroSlider.classList.remove("dragging");
+    });
+  }
+
+  startAuto();
 
   $("save").addEventListener("click", saveLocal);
   $("wa").addEventListener("click", sendWhatsApp);
   $("reset").addEventListener("click", resetAll);
 
+  gateForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (gatePass.value === gateKey) {
+      gate.classList.add("hidden");
+      gate.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("locked");
+      gateMsg.textContent = "";
+      gateMsg.classList.remove("error");
+      gatePass.value = "";
+      return;
+    }
+    gateMsg.textContent = "Password errata, riprova.";
+    gateMsg.classList.add("error");
+    gatePass.value = "";
+    gatePass.focus();
+  });
+
+  gatePass.addEventListener("input", () => {
+    gateMsg.textContent = "";
+    gateMsg.classList.remove("error");
+  });
+
   loadLocal();
+  gatePass.focus();
 </script>
 </body>
 </html>
