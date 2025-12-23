@@ -207,7 +207,11 @@
       cursor: pointer;
       backdrop-filter: blur(4px);
     }
-    .slider-btn:hover { background: rgba(9,7,6,0.75); }
+    .slider-btn:hover {
+      background: rgba(9,7,6,0.75);
+      transform: translateY(-50%);
+      box-shadow: none;
+    }
     .slider-btn.prev { left: 14px; }
     .slider-btn.next { right: 14px; }
     @media (min-width: 560px) {
